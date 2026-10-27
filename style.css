@@ -16,6 +16,10 @@
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 * {
@@ -25,16 +29,21 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text-main);
   line-height: 1.5;
-  padding-bottom: 30px;
+  padding-bottom: calc(30px + var(--safe-bottom));
   min-height: 100dvh;
 }
 
-/* 頂部導航列 (自動適配 iOS 瀏海 / 靈動島安全區域) */
+/* 頂部導航列 (自動適配 iOS Home Screen standalone / notch / safe area) */
 .top-nav {
   position: sticky;
   top: 0;
@@ -42,14 +51,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* 關鍵：原本的 10px 加上系統安全距離 */
-  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  padding-top: max(12px, calc(var(--safe-top) + 12px));
   padding-bottom: 10px;
-  padding-left: calc(16px + env(safe-area-inset-left, 0px));
-  padding-right: calc(16px + env(safe-area-inset-right, 0px));
+  padding-left: calc(16px + var(--safe-left));
+  padding-right: calc(16px + var(--safe-right));
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
+  min-height: calc(56px + max(0px, var(--safe-top)));
 }
 
 .app-title {
@@ -485,7 +494,8 @@ body {
    模式 B：桌面遙控器模式 (Zen Mode / Remote Mode)
    ========================================================================== */
 body.zen-mode .top-nav {
-  padding: 8px 16px;
+  padding-top: max(8px, calc(var(--safe-top) + 8px));
+  padding-bottom: 8px;
 }
 
 body.zen-mode #chunkListContainer {
@@ -763,4 +773,23 @@ input[type="text"], input[type="password"], textarea, select {
 .voice-manage-status {
   font-size: 0.78rem;
   color: var(--text-sub);
+}
+
+@supports (padding: max(0px)) {
+  .top-nav {
+    padding-top: max(12px, calc(var(--safe-top) + 12px));
+  }
+}
+
+@supports (height: 100dvh) {
+  body {
+    min-height: 100dvh;
+  }
+}
+
+/* 修正 iPhone Home Screen Standalone 模式下，header 可能被 notch / status bar 擠壓的問題 */
+@media (display-mode: standalone) {
+  .top-nav {
+    padding-top: max(16px, calc(var(--safe-top) + 16px));
+  }
 }
