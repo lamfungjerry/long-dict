@@ -1,1 +1,1 @@
-# eng-dict
+# long-dict
